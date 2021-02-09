@@ -3,34 +3,6 @@ const { async } = require('rxjs');
 const db = require('./db')
 require('console.table')
 
-/*
-    1) Main Screen
-    -View Departments
-    -View Employees
-    -View Roles
-    -Add Department
-    -Add Employee
-    -Add Role
-    -Update Employee Role*
-    *Delete
-    *Update
-    -Done
-
-    2) View Screen (D, E, R)
-    -Go Back to Main Screen
-    -Done
-
-    3) Add
-    Inquirer Prompts
-    console.log("Employee has been added!")
-    -Go Back to Main Screen
-    -Done
-
-    4) Update Role
-    -Shows all employees
-    
-*/
-
 function home() {
     inquirer.prompt([
         {
@@ -85,7 +57,7 @@ function home() {
                 updateEmployee();
                 break;
             case 'Done':
-                console.log("Help me I'm trapped in this box");
+                console.log("See you next time!");
                 break;
 
             default:
@@ -127,32 +99,50 @@ async function viewAllDepartments() {
         };
     })
 }
+async function pizza(order) {
+    const employees = await db.viewAllEmployees(order)
+        console.table(employees);
+        await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'options',
+                message: 'What do we do next?',
+                choices: [
+                    'Back to Home',
+                    'Done'
+                ]
+            }
+        ]).then(answers => {
+            switch (answers.options) {
+                case 'Back to Home':
+                    home()
+                    break;
+                case 'Done':
+                    console.log("See you next time!");
+                    break;
+                default:
+                    console.log("No worries, this was probably the coders fault");
+                    break;
+            }
+        })
+}
 
 async function viewAllEmployees() {
-    const employees = await db.viewAllEmployees();
-    console.table(employees);
     inquirer.prompt([
         {
             type: 'list',
-            name: 'options',
-            message: 'What do we do next?',
+            name: 'order',
             choices: [
-                'Back to Home',
-                'Done'
+                {name: 'Last Name', value: 'last'},
+                {name: 'ID', value: 'id'},
+                {name: 'Manager', value: 'manager_last'},
+                {name: 'Department', value: 'department_id'},
+                {name: 'Role', value: 'role_id'}
+                
             ]
         }
     ]).then(answers => {
-        switch (answers.options) {
-            case 'Back to Home':
-                home()
-                break;
-            case 'Done':
-                console.log("See you next time!");
-                break;
-            default:
-                console.log("No worries, this was probably the coders fault");
-                break;
-        }
+        pizza(answers.order)
     })
 
 };
@@ -185,9 +175,7 @@ async function viewAllRoles() {
     })
 };
 
-
 // ---------------------------------
-
 async function createDepartment() {
     const department = await inquirer.prompt([
         {
@@ -231,7 +219,7 @@ async function createDepartment() {
 
 async function createEmployee() {
     const roles = await db.viewAllRoles();
-    const employees = await db.viewAllEmployees();
+    const employees = await db.viewAllEmployees('last');
     inquirer.prompt([
         {
             type: 'input',
@@ -346,7 +334,6 @@ async function createRole() {
                 message: 'What do we do next?',
                 choices: [
                     'Back to Home',
-                    'Add Another Role',
                     'Done'
                 ]
             }
@@ -354,9 +341,6 @@ async function createRole() {
             switch (answers.options) {
                 case 'Back to Home':
                     home()
-                    break;
-                case 'Add Another Role':
-                    createRole()
                     break;
                 case 'Done':
                     console.log("See you next time!");
@@ -400,7 +384,6 @@ async function deleteDepartment() {
                 message: 'What do we do next?',
                 choices: [
                     'Back to Home',
-                    'Delete Another Department',
                     'Done'
                 ]
             }
@@ -408,9 +391,6 @@ async function deleteDepartment() {
             switch (answers.options) {
                 case 'Back to Home':
                     home()
-                    break;
-                    case 'Delete Another Department':
-                    deleteDepartment()
                     break;
                     case 'Done':
                         console.log("See you next time!");
@@ -425,7 +405,7 @@ async function deleteDepartment() {
 };
 
 async function deleteEmployee() {
-    const employees = await db.viewAllEmployees();
+    const employees = await db.viewAllEmployees('last');
     inquirer.prompt([
         {
             type: 'list',
@@ -452,7 +432,6 @@ async function deleteEmployee() {
                 message: 'What do we do next?',
                 choices: [
                     'Back to Home',
-                    'Delete Another Employee',
                     'Done'
                 ]
             }
@@ -460,9 +439,6 @@ async function deleteEmployee() {
             switch (answers.options) {
                 case 'Back to Home':
                     home()
-                    break;
-                    case 'Delete Another Employee':
-                    deleteEmployee()
                     break;
                     case 'Done':
                         console.log("See you next time!");
@@ -485,8 +461,8 @@ async function deleteRole() {
             message: 'Which role is being removed?',
             async choices() {
                 const choiceArray = [];
-                roles.forEach(({ id, name }) => {
-                    choiceArray.push(`${id}: ${name}`);
+                roles.forEach(({ id, title }) => {
+                    choiceArray.push(`${id}: ${title}`);
                 });
                 return choiceArray
             }
@@ -504,7 +480,6 @@ async function deleteRole() {
                 message: 'What do we do next?',
                 choices: [
                     'Back to Home',
-                    'Delete Another Role',
                     'Done'
                 ]
             }
@@ -512,9 +487,6 @@ async function deleteRole() {
             switch (answers.options) {
                 case 'Back to Home':
                     home()
-                    break;
-                    case 'Delete Another Role':
-                    deleteRole()
                     break;
                     case 'Done':
                         console.log("See you next time!");
@@ -571,7 +543,6 @@ async function updateEmployee() {
                 message: 'What do we do next?',
                 choices: [
                     'Back to Home',
-                    'Update Another Employee',
                     'Done'
                 ]
             }
@@ -579,9 +550,6 @@ async function updateEmployee() {
             switch (answers.options) {
                 case 'Back to Home':
                     home()
-                    break;
-                case 'Update Another Employee':
-                    updateEmployee()
                     break;
                 case 'Done':
                     console.log("See you next time!");

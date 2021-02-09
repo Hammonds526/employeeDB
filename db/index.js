@@ -35,13 +35,13 @@ class DB {
         )
     };
 
-    viewAllEmployees() {
+    viewAllEmployees(order) {
         return this.connection.query(
             `
             SELECT
 				employee.id,
-                employee.first_name AS first,
                 employee.last_name AS last,
+                employee.first_name AS first,
                 role.title,
                 department.name AS department,
                 role.salary,
@@ -57,8 +57,9 @@ class DB {
                 employee.role_id = role.id
             LEFT JOIN
 				department ON
-			    department.id = role.department_id;
-            `
+                department.id = role.department_id
+            ORDER BY ${order};   
+            `,
         )
     };
 
