@@ -136,9 +136,7 @@ async function viewAllEmployees() {
                 {name: 'Last Name', value: 'last'},
                 {name: 'ID', value: 'id'},
                 {name: 'Manager', value: 'manager_last'},
-                {name: 'Department', value: 'department_id'},
-                {name: 'Role', value: 'role_id'}
-                
+                {name: 'Department', value: 'department_id'}
             ]
         }
     ]).then(answers => {
